@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const User = require('../models/userModel');
 
 // create new user
-
 const createUser = async (req, res) => {
 
     const { firstName, lastName, email, password, confirmPassword } = req.body;
@@ -33,6 +32,7 @@ const createUser = async (req, res) => {
     }
 
 }
+
 
 // get all users 
 const getUsers = async (req, res) => {
