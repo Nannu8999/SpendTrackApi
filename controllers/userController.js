@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const User = require('../models/userModel');
 
 // create new user
@@ -14,24 +15,37 @@ const createUser = async (req, res) => {
         }
 
         const isExistingUser = await User.findOne({ email });
-
         if (isExistingUser) {
             return res.status(400).json({ error: 'Email already in use' });
         }
 
         const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        const haashedPassword = await bcrypt.hash(password, salt);
+        //  Create Stripe customer
+        const customer = await stripe.customers.create({
+            name: `${firstName} ${lastName}`,
+            email,
+        });
 
-        await User.create({ firstName, lastName, email, password: haashedPassword });
 
-        res.status(200).json('User created successfully');
+        const user = await User.create({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
+            stripeCustomerId: customer.id
+        });
+
+        res.status(200).json({
+            message: 'User created successfully',
+            user,
+        });
 
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
-
-}
+};
 
 
 // get all users 

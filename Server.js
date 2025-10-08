@@ -7,6 +7,7 @@ const PORT = process.env.PORT;
 const app = express();
 const userRoutes = require('./Routes/users');
 const authRoutes = require('./Routes/auth');
+const products = require('./Routes/stripe/products');
 
 const allowedOrigins = [
     "http://localhost:3000"
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 // routes
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/products', products);
 
 // connect to db
 mongoose.connect(process.env.MONGO_URI)

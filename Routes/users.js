@@ -4,9 +4,9 @@ const { createUser, getUsers } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 // Create a new user
-routes.post('/', createUser);
+routes.post('/createUser', createUser);
 
 // Get all users
-routes.get('/', verifyToken, getUsers);
+routes.get('/getUsers', verifyToken, getUsers);
 
 module.exports = routes;
