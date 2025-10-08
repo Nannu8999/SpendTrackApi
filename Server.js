@@ -1,48 +1,51 @@
+// Load environment variables at the very top
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');       // 1️⃣ import cors
-require("dotenv").config();
+const cors = require('cors');
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 const app = express();
+
+// Routes
 const userRoutes = require('./Routes/users');
 const authRoutes = require('./Routes/auth');
-const products = require('./Routes/stripe/products');
+const productsRoutes = require('./Routes/stripe/products');
 
-const allowedOrigins = [
-    "http://localhost:3000"
-];
+// CORS setup
+const allowedOrigins = ["http://localhost:3000"];
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin) return callback(null, true); // allow Postman, curl
+        if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
         return callback(new Error("Not allowed by CORS"));
     },
-    credentials: true // if you use cookies or auth headers
+    credentials: true
 }));
 
-// middleware
+// Middleware
 app.use(express.json());
 
-// logging middleware
+// Logging middleware
 app.use((req, res, next) => {
     console.log(req.path, req.method);
     next();
 });
 
-// routes
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/products', products);
+app.use('/api/products', productsRoutes);
 
-// connect to db
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         app.listen(PORT, () => {
-            console.log('Connected to Db & Server is running on port', PORT);
+            console.log(`Connected to DB & Server running on port ${PORT}`);
         });
     })
-    .catch((error) => {
-        console.log('Error connecting to DB', error);
+    .catch(error => {
+        console.log('Error connecting to DB:', error);
     });
